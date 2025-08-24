@@ -1,122 +1,125 @@
 #!/bin/bash
 #
-# Sukisu Ultra Installation Helper
-# A beautiful interactive script to guide users to Sukisu Ultra
+# Sukisu Ultra - Lightning Fast Installer ⚡
+# iPhone-ish fluid experience with error handling
 
-# --- Colors and Styling ---
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
-CYAN='\033[0;36m'
-WHITE='\033[1;37m'
-BOLD='\033[1m'
-NC='\033[0m' # No Color
+# Colors (iOS-inspired)
+readonly G='\033[0;32m'    # Green
+readonly B='\033[0;34m'    # Blue  
+readonly R='\033[0;31m'    # Red
+readonly Y='\033[1;33m'    # Yellow
+readonly P='\033[0;35m'    # Purple
+readonly C='\033[0;36m'    # Cyan
+readonly W='\033[1;37m'    # White
+readonly D='\033[0;90m'    # Dim
+readonly N='\033[0m'       # Reset
 
-# --- Beautiful ASCII Art ---
-show_welcome() {
-    clear
-    echo -e "${PURPLE}${BOLD}"
-    echo "╔═══════════════════════════════════════════════════════════════╗"
-    echo "║                                                               ║"
-    echo "║   ███████╗██╗   ██╗██╗  ██╗██╗███████╗██╗   ██╗               ║"
-    echo "║   ██╔════╝██║   ██║██║ ██╔╝██║██╔════╝██║   ██║               ║"
-    echo "║   ███████╗██║   ██║█████╔╝ ██║███████╗██║   ██║               ║"
-    echo "║   ╚════██║██║   ██║██╔═██╗ ██║╚════██║██║   ██║               ║"
-    echo "║   ███████║╚██████╔╝██║  ██╗██║███████║╚██████╔╝               ║"
-    echo "║   ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝╚══════╝ ╚═════╝                ║"
-    echo "║                                                               ║"
-    echo "║                    ${CYAN}✨ ULTRA EDITION ✨${PURPLE}                     ║"
-    echo "║                                                               ║"
-    echo "╚═══════════════════════════════════════════════════════════════╝"
-    echo -e "${NC}"
+# Error handling (iPhone-style)
+handle_error() {
+    echo -e "\n${R}■${N} ${W}Oops! Something went wrong${N}"
+    echo -e "${D}Error details: $1${N}"
+    echo -e "${Y}→${N} Try again or contact support"
+    exit 1
 }
 
-# --- Animated typing effect ---
-type_text() {
-    local text="$1"
-    local delay="${2:-0.05}"
-    for (( i=0; i<${#text}; i++ )); do
-        echo -n "${text:$i:1}"
-        sleep "$delay"
+# Trap errors
+trap 'handle_error "Unexpected error on line $LINENO"' ERR
+
+# Fast animations
+pulse() { 
+    local msg="$1"
+    for i in {1..3}; do 
+        echo -ne "\r${C}●${N} $msg"
+        sleep 0.1
+        echo -ne "\r${B}●${N} $msg"
+        sleep 0.1
     done
-    echo
+    echo -ne "\r${G}●${N} $msg ✓\n"
 }
 
-# --- Loading animation ---
-show_loading() {
-    local duration="$1"
-    local message="$2"
-    local chars="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
-    local end_time=$((SECONDS + duration))
-    
-    while [ $SECONDS -lt $end_time ]; do
-        for (( i=0; i<${#chars}; i++ )); do
-            echo -ne "\r${CYAN}${chars:$i:1} ${message}${NC}"
-            sleep 0.1
-        done
+# iPhone-style loading
+loading() {
+    local dots="   "
+    for i in {1..8}; do
+        echo -ne "\r${B}${dots:0:$((i%4))}${N}"
+        sleep 0.1
     done
-    echo -ne "\r${GREEN}✓ ${message} Complete!${NC}\n"
+    echo -ne "\r${G}✓${N} Ready!\n"
 }
 
-# --- Main Script ---
-show_welcome
+# System detection
+detect_system() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        SYSTEM="macOS"
+        OPENER="open"
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        SYSTEM="Linux"
+        OPENER="xdg-open"
+    else
+        SYSTEM="Unknown"
+        OPENER=""
+    fi
+}
 
-echo -e "\n${YELLOW}${BOLD}Welcome to the Sukisu Ultra Experience!${NC}\n"
+# Main UI
+clear
+echo -e "${P}╭─────────────────────────────────────────╮${N}"
+echo -e "${P}│${N}                                         ${P}│${N}"
+echo -e "${P}│${N}  ${W}SUKISU ${C}ULTRA${N} ${Y}⚡${N}                    ${P}│${N}"
+echo -e "${P}│${N}  ${D}Lightning fast installer${N}            ${P}│${N}"
+echo -e "${P}│${N}                                         ${P}│${N}"
+echo -e "${P}╰─────────────────────────────────────────╯${N}"
 
-type_text "${WHITE}Hello there, fellow developer! 👋${NC}" 0.03
+echo -e "\n${G}●${N} ${W}Welcome!${N} Let's get you set up"
 
-echo -e "\n${BLUE}${BOLD}🌟 Time for an Amazing Journey! 🌟${NC}"
-echo -e "${WHITE}To get the latest and greatest version of Sukisu Ultra,${NC}"
-echo -e "${WHITE}we need you to take a quick trip to our releases page.${NC}\n"
+# Quick system check
+detect_system
+pulse "Detecting system: $SYSTEM"
 
-show_loading 2 "Preparing your experience"
-
-echo -e "\n${PURPLE}${BOLD}📋 Here's what you need to do:${NC}"
-echo -e "${CYAN}  1. ${WHITE}Switch to your web browser (Chrome, Firefox, Safari, etc.)${NC}"
-echo -e "${CYAN}  2. ${WHITE}Navigate to: ${YELLOW}${BOLD}github.com/sukisu-ultra/sukisu-ultra/releases${NC}"
-echo -e "${CYAN}  3. ${WHITE}Download the latest release for your system${NC}"
-echo -e "${CYAN}  4. ${WHITE}Come back to this terminal when you're done${NC}\n"
-
-echo -e "${YELLOW}${BOLD}🚀 Ready? Let's go!${NC}\n"
-
-# Try to open the URL automatically if possible
-if command -v open >/dev/null 2>&1; then
-    echo -e "${GREEN}Opening the releases page for you...${NC}"
-    open "https://github.com/sukisu-ultra/sukisu-ultra/releases" 2>/dev/null || true
-elif command -v xdg-open >/dev/null 2>&1; then
-    echo -e "${GREEN}Opening the releases page for you...${NC}"
-    xdg-open "https://github.com/sukisu-ultra/sukisu-ultra/releases" 2>/dev/null || true
+# Error simulation for demo (iPhone VCS-style)
+if [[ "$1" == "--demo-error" ]]; then
+    echo -e "\n${R}■${N} ${W}Git Error${N}"
+    echo -e "${D}fatal: repository 'sukisu-ultra' not found${N}"
+    echo -e "${Y}→${N} ${W}Fix:${N} Check your connection"
+    echo -e "${Y}→${N} ${W}Or:${N} Try manual download"
+    echo -e "\n${C}?${N} Need help? Visit our docs"
+    exit 1
 fi
 
-echo -e "${WHITE}Press ${BOLD}${GREEN}ENTER${NC}${WHITE} when you've downloaded Sukisu Ultra and are ready to continue...${NC}"
+loading
+
+echo -e "\n${Y}→${N} ${W}Quick action needed:${N}"
+echo -e "  ${B}1.${N} Switch to your browser"
+echo -e "  ${B}2.${N} Visit: ${C}github.com/sukisu-ultra/sukisu-ultra/releases${N}"
+echo -e "  ${B}3.${N} Download latest release"
+
+# Auto-open if possible
+if command -v "$OPENER" >/dev/null 2>&1; then
+    echo -e "\n${G}●${N} Opening browser..."
+    "$OPENER" "https://github.com/sukisu-ultra/sukisu-ultra/releases" 2>/dev/null || {
+        echo -e "${Y}!${N} Could not open browser automatically"
+        echo -e "${D}Please open manually: github.com/sukisu-ultra/sukisu-ultra/releases${N}"
+    }
+else
+    echo -e "\n${Y}!${N} Please open manually:"
+    echo -e "${C}github.com/sukisu-ultra/sukisu-ultra/releases${N}"
+fi
+
+echo -e "\n${D}Press ${W}ENTER${D} when ready...${N}"
 read -r
 
-# Beautiful thank you message
+# Success animation
 clear
-echo -e "${PURPLE}${BOLD}"
-echo "╔═══════════════════════════════════════════════════════════════╗"
-echo "║                                                               ║"
-echo "║           🎉 ${YELLOW}THANK YOU FOR CHOOSING SUKISU!${PURPLE} 🎉            ║"
-echo "║                                                               ║"
-echo "║  ${CYAN}✨ Your journey with Sukisu Ultra begins now! ✨${PURPLE}        ║"
-echo "║                                                               ║"
-echo "║     ${WHITE}We hope you found something amazing! 🚀${PURPLE}              ║"
-echo "║                                                               ║"
-echo "║        ${GREEN}Have a nice day, and see you in the future! 👋${PURPLE}        ║"
-echo "║                                                               ║"
-echo "╚═══════════════════════════════════════════════════════════════╝"
-echo -e "${NC}\n"
+echo -e "${G}╭─────────────────────────────────────────╮${N}"
+echo -e "${G}│${N}                 ${G}✓${N}                   ${G}│${N}"
+echo -e "${G}│${N}           ${W}All set!${N}               ${G}│${N}"
+echo -e "${G}│${N}                                         ${G}│${N}"
+echo -e "${G}│${N}  ${C}Thanks for choosing Sukisu Ultra${N}   ${G}│${N}"
+echo -e "${G}│${N}                                         ${G}│${N}"
+echo -e "${G}╰─────────────────────────────────────────╯${N}"
 
-# Animated goodbye
-echo -e "${YELLOW}${BOLD}"
-type_text "Thanks for using our installer! 💖" 0.04
-echo -e "${NC}"
+echo -e "\n${Y}✨${N} ${W}Happy coding!${N}"
+echo -e "${D}See you soon... ${P}bye!${N} ${Y}👋${N}\n"
 
-echo -e "${CYAN}${BOLD}"
-type_text "Goodbye, and happy developing! ✨" 0.04
-echo -e "${NC}\n"
-
-# Final sparkle effect
-echo -e "${WHITE}${BOLD}✨ ⭐ 🌟 ✨ ⭐ 🌟 ✨ ⭐ 🌟 ✨ ⭐ 🌟 ✨${NC}\n"
+# Quick exit
+sleep 0.5
